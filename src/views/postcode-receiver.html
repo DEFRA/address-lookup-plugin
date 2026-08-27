@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block content %}
+    <h1 class="govuk-heading-xl">{{ pageHeading }}</h1>
+    <p class="govuk-body">{{ pageText }}</p>
+
+    <p class="govuk-body">Params: {{ params | dump }}</p>
+{% endblock %}

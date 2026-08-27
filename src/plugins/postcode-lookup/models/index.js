@@ -1,0 +1,628 @@
+import Joi from 'joi'
+
+import { i18nT } from '~/src/plugins/postcode-lookup/i18n/translator.js'
+import * as service from '~/src/plugins/postcode-lookup/service.js'
+
+export const crumbSchema = Joi.string().optional().allow('')
+
+// Field names/ids
+const postcodeQueryFieldName = 'postcodeQuery'
+const buildingNameQueryFieldName = 'buildingNameQuery'
+const uprnFieldName = 'uprn'
+
+const line1FieldName = 'addressLine1'
+const line2FieldName = 'addressLine2'
+const townFieldName = 'town'
+const countyFieldName = 'county'
+const postcodeFieldName = 'postcode'
+
+const GOVUK_MARGIN_RIGHT_1 = 'govuk-!-margin-right-1'
+const COMMON_BACK = 'common.back'
+
+export const steps = {
+  // Step 1: Postcode/building name input
+  details: 'details',
+  // Step 2: Select address
+  select: 'select',
+  // Step 3: Manual address
+  manual: 'manual'
+}
+
+export const JOURNEY_BASE_URL = '/postcode-lookup'
+
+/**
+ * Build form errors
+ * @param {Error} [err]
+ */
+function buildErrors(err) {
+  const hasErrors = Joi.isError(err) && err.details.length > 0
+
+  if (!hasErrors) {
+    return {}
+  }
+
+  /**
+   * Get error by path
+   * @param {string} fieldName
+   */
+  const getError = (fieldName) => {
+    return err.details.find((item) => item.path[0] === fieldName)
+  }
+
+  const postcodeQueryError = getError(postcodeQueryFieldName)
+  const buildingNameQueryError = getError(buildingNameQueryFieldName)
+  const uprnError = getError(uprnFieldName)
+  const line1Error = getError(line1FieldName)
+  const line2Error = getError(line2FieldName)
+  const townError = getError(townFieldName)
+  const countyError = getError(countyFieldName)
+  const postcodeError = getError(postcodeFieldName)
+
+  /**
+   * @type {{ text: string, href: string }[]}
+   */
+  const errors = []
+
+  /**
+   * Push error
+   * @param {string} fieldName - the field name
+   * @param {ValidationErrorItem} [item] - the joi validation error
+   */
+  const pushError = (fieldName, item) => {
+    if (item) {
+      errors.push({
+        text: item.message,
+        href: `#${fieldName}`
+      })
+    }
+  }
+
+  pushError(postcodeQueryFieldName, postcodeQueryError)
+  pushError(buildingNameQueryFieldName, buildingNameQueryError)
+  pushError(uprnFieldName, uprnError)
+  pushError(line1FieldName, line1Error)
+  pushError(line2FieldName, line2Error)
+  pushError(townFieldName, townError)
+  pushError(countyFieldName, countyError)
+  pushError(postcodeFieldName, postcodeError)
+
+  return {
+    errors,
+    postcodeQueryError,
+    buildingNameQueryError,
+    uprnError,
+    line1Error,
+    line2Error,
+    townError,
+    countyError,
+    postcodeError
+  }
+}
+
+/**
+ * Search ordnance survey for addresses
+ * @param {string} postcodeQuery
+ * @param {string} buildingNameQuery
+ * @param {string} apiKey
+ */
+async function getAddresses(postcodeQuery, buildingNameQuery, apiKey) {
+  const addresses = await service.search(
+    postcodeQuery,
+    buildingNameQuery,
+    apiKey
+  )
+  const addressCount = addresses.length
+  const singleAddress = addressCount === 1 ? addresses.at(0) : undefined
+  const hasAddresses = addressCount > 0
+  const hasMultipleAddresses = addressCount > 1
+
+  return {
+    hasAddresses,
+    hasMultipleAddresses,
+    singleAddress,
+    addresses,
+    addressCount
+  }
+}
+
+/**
+ * Get the details view fields
+ * @param {PostcodeLookupDetailsData | undefined} details
+ * @param {OptionalValidationErrorItem} postcodeQueryError
+ * @param {OptionalValidationErrorItem} buildingNameQueryError
+ * @param {string} language
+ */
+function getDetailsFields(
+  details,
+  postcodeQueryError,
+  buildingNameQueryError,
+  language
+) {
+  return {
+    [postcodeQueryFieldName]: {
+      id: postcodeQueryFieldName,
+      name: postcodeQueryFieldName,
+      label: {
+        text: i18nT('postcodeLookup.postcodeLabel', language)
+      },
+      hint: {
+        text: i18nT('postcodeLookup.postcodeHint', language)
+      },
+      value: details?.postcodeQuery,
+      errorMessage: postcodeQueryError && { text: postcodeQueryError.message }
+    },
+    [buildingNameQueryFieldName]: {
+      id: buildingNameQueryFieldName,
+      name: buildingNameQueryFieldName,
+      label: {
+        text: i18nT('postcodeLookup.buildingNameLabel', language)
+      },
+      hint: {
+        text: i18nT('postcodeLookup.buildingNameHint', language)
+      },
+      value: details?.buildingNameQuery,
+      errorMessage: buildingNameQueryError && {
+        text: buildingNameQueryError.message
+      }
+    }
+  }
+}
+
+/**
+ * Get the select view fields
+ * @param {PostcodeLookupDetailsData} details
+ * @param {boolean} hasMultipleAddresses
+ * @param {Address | undefined} singleAddress
+ * @param {PostcodeLookupSelectPayload | undefined} payload
+ * @param {OptionalValidationErrorItem} uprnError
+ * @param {Address[]} addresses
+ * @param {string} language
+ */
+function getSelectFields(
+  details,
+  hasMultipleAddresses,
+  singleAddress,
+  payload,
+  uprnError,
+  addresses,
+  language
+) {
+  const selectAddressText = i18nT('postcodeLookup.selectAddress', language)
+
+  return {
+    [postcodeQueryFieldName]: {
+      id: postcodeQueryFieldName,
+      name: postcodeQueryFieldName,
+      type: 'hidden',
+      value: details.postcodeQuery
+    },
+    [buildingNameQueryFieldName]: {
+      id: buildingNameQueryFieldName,
+      name: buildingNameQueryFieldName,
+      type: 'hidden',
+      value: details.buildingNameQuery
+    },
+    [uprnFieldName]: {
+      id: uprnFieldName,
+      name: uprnFieldName,
+      label: hasMultipleAddresses
+        ? {
+            text: selectAddressText
+          }
+        : undefined,
+      value: singleAddress ? singleAddress.uprn : payload?.uprn,
+      errorMessage: uprnError && { text: uprnError.message },
+      items: hasMultipleAddresses
+        ? [{ text: selectAddressText, value: '' }].concat(
+            addresses.map((item) => ({
+              text: item.formatted,
+              value: item.uprn
+            }))
+          )
+        : undefined,
+      type: singleAddress ? 'hidden' : undefined
+    }
+  }
+}
+
+/**
+ * Get the manual view fields
+ * @param {PostcodeLookupManualPayload | undefined} payload
+ * @param {OptionalValidationErrorItem} line1Error
+ * @param {OptionalValidationErrorItem} line2Error
+ * @param {OptionalValidationErrorItem} townError
+ * @param {OptionalValidationErrorItem} countyError
+ * @param {OptionalValidationErrorItem} postcodeError
+ * @param {string} language
+ */
+function getManualFields(
+  payload,
+  line1Error,
+  line2Error,
+  townError,
+  countyError,
+  postcodeError,
+  language
+) {
+  return {
+    [line1FieldName]: {
+      id: line1FieldName,
+      name: line1FieldName,
+      label: {
+        text: i18nT('postcodeLookup.addressLine1Label', language)
+      },
+      value: payload?.addressLine1,
+      errorMessage: line1Error && { text: line1Error.message }
+    },
+    [line2FieldName]: {
+      id: line2FieldName,
+      name: line2FieldName,
+      label: {
+        text: i18nT('postcodeLookup.addressLine2Label', language)
+      },
+      value: payload?.addressLine2,
+      errorMessage: line2Error && { text: line2Error.message }
+    },
+    [townFieldName]: {
+      id: townFieldName,
+      name: townFieldName,
+      label: {
+        text: i18nT('postcodeLookup.townLabel', language)
+      },
+      classes: 'govuk-!-width-two-thirds',
+      value: payload?.town,
+      errorMessage: townError && { text: townError.message }
+    },
+    [countyFieldName]: {
+      id: countyFieldName,
+      name: countyFieldName,
+      label: {
+        text: i18nT('postcodeLookup.countyLabel', language)
+      },
+      value: payload?.county,
+      errorMessage: countyError && { text: countyError.message }
+    },
+    [postcodeFieldName]: {
+      id: postcodeFieldName,
+      name: postcodeFieldName,
+      label: {
+        text: i18nT('postcodeLookup.postcodeLabel', language)
+      },
+      classes: 'govuk-input--width-10',
+      value: payload?.postcode,
+      errorMessage: postcodeError && { text: postcodeError.message }
+    }
+  }
+}
+
+export const stepSchema = Joi.string()
+  .valid(...Object.keys(steps))
+  .required()
+
+const sharedPayloadSchemaKeys = {
+  crumb: crumbSchema,
+  step: stepSchema
+}
+
+/**
+ * Postcode lookup details form payload schema
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupDetailsPayload>}
+ */
+export function createDetailsPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [postcodeQueryFieldName]: Joi.string()
+        .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+        .trim()
+        .required()
+        .messages({
+          'string.pattern.base': i18nT(
+            'postcodeLookup.validation.invalidPostcode',
+            language
+          ),
+          '*': i18nT('postcodeLookup.validation.requiredPostcode', language)
+        }),
+      [buildingNameQueryFieldName]: Joi.string()
+        .trim()
+        .required()
+        .allow('')
+        .trim()
+    })
+    .required()
+}
+
+/**
+ * Postcode lookup select form payload schema
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupSelectPayload>}
+ */
+export function createSelectPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [uprnFieldName]: Joi.string()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.selectAddress', language)
+        })
+    })
+    .required()
+}
+
+/**
+ * Postcode lookup manual form payload schema
+ * @param {string} [language]
+ * @returns {ObjectSchema<PostcodeLookupManualPayload>}
+ */
+export function createManualPayloadSchema(language = 'en-GB') {
+  return Joi.object()
+    .keys({
+      ...sharedPayloadSchemaKeys,
+      [line1FieldName]: Joi.string()
+        .trim()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.requiredAddressLine1', language)
+        }),
+      [line2FieldName]: Joi.string().trim().allow('').required(),
+      [townFieldName]: Joi.string()
+        .trim()
+        .required()
+        .messages({
+          '*': i18nT('postcodeLookup.validation.requiredTown', language)
+        }),
+      [countyFieldName]: Joi.string().trim().allow('').required(),
+      [postcodeFieldName]: Joi.string()
+        .pattern(/^[a-zA-Z]{1,2}\d[a-zA-Z\d]?\s?\d[a-zA-Z]{2}$/)
+        .trim()
+        .required()
+        .messages({
+          'string.pattern.base': i18nT(
+            'postcodeLookup.validation.invalidManualPostcode',
+            language
+          ),
+          '*': i18nT(
+            'postcodeLookup.validation.requiredManualPostcode',
+            language
+          )
+        })
+    })
+    .required()
+}
+
+/**
+ * Get the postcode lookup href
+ * @param {string} [step] - the postcode lookup step
+ */
+function getHref(step) {
+  const query = step ? `?step=${step}` : ''
+
+  return `${JOURNEY_BASE_URL}${query}`
+}
+
+/**
+ * The postcode lookup details form view model
+ * @param {PostcodeLookupSessionData} data
+ * @param {Translator} translator
+ * @param {PostcodeLookupDetailsData} [payload]
+ * @param {Error} [err]
+ */
+export function detailsViewModel(data, translator, payload, err) {
+  const { title, hint, sourceUrl, languages } = data.initial
+
+  const { t } = translator
+
+  const backLink = {
+    href: sourceUrl,
+    text: t(COMMON_BACK)
+  }
+
+  const { errors, postcodeQueryError, buildingNameQueryError } =
+    buildErrors(err)
+
+  const fields = getDetailsFields(
+    payload ?? data.details,
+    postcodeQueryError,
+    buildingNameQueryError,
+    translator.language
+  )
+
+  const continueButton = {
+    text: t('postcodeLookup.findAddress'),
+    classes: GOVUK_MARGIN_RIGHT_1
+  }
+  const manualLink = {
+    text: t('postcodeLookup.enterManually'),
+    href: getHref(steps.manual)
+  }
+
+  const selector = languages?.length ? { languages } : {}
+
+  return {
+    step: steps.details,
+    showTitle: true,
+    name: title,
+    serviceUrl: sourceUrl,
+    pageTitle: title,
+    hint,
+    backLink,
+    errors,
+    fields,
+    buttons: { continueButton, manualLink },
+    t,
+    language: translator.language,
+    ...selector
+  }
+}
+
+/**
+ * The postcode lookup select form view model
+ * @param {{ session: PostcodeLookupSessionData, apiKey: string }} data
+ * @param {Translator} translator
+ * @param {PostcodeLookupSelectPayload} [payload]
+ * @param {Error} [err]
+ */
+export async function selectViewModel(data, translator, payload, err) {
+  const { session, apiKey } = data
+  const { details, initial } = session
+  const { postcodeQuery, buildingNameQuery } = details
+  const { language, t } = translator
+
+  const {
+    hasAddresses,
+    hasMultipleAddresses,
+    singleAddress,
+    addresses,
+    addressCount
+  } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
+
+  const title = hasAddresses
+    ? initial.title
+    : t('postcodeLookup.noAddressFoundTitle')
+  const formPath = initial.sourceUrl
+  const href = getHref()
+
+  const backLink = {
+    href,
+    text: t(COMMON_BACK)
+  }
+
+  const { errors, uprnError } = buildErrors(err)
+
+  const fields = getSelectFields(
+    details,
+    hasMultipleAddresses,
+    singleAddress,
+    payload,
+    uprnError,
+    addresses,
+    language
+  )
+
+  const searchAgainText = t('postcodeLookup.searchAgain')
+
+  const searchAgainLink = {
+    text: searchAgainText,
+    href
+  }
+
+  const continueButton = {
+    href: hasAddresses ? undefined : href,
+    text: hasAddresses ? t('postcodeLookup.useThisAddress') : searchAgainText,
+    classes: GOVUK_MARGIN_RIGHT_1
+  }
+  const manualLink = {
+    text: t('postcodeLookup.enterManually'),
+    href: `${href}?step=${steps.manual}`
+  }
+
+  const addressesFoundText = hasAddresses
+    ? t('postcodeLookup.addressFound', { count: addressCount })
+    : undefined
+  const noAddressFoundText = !hasAddresses
+    ? t('postcodeLookup.noAddressFoundBody')
+    : undefined
+
+  const selector = initial.languages?.length
+    ? { languages: initial.languages }
+    : {}
+
+  return {
+    step: steps.select,
+    showTitle: true,
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: title,
+    backLink,
+    errors,
+    searchAgainLink,
+    fields,
+    details,
+    addressCount,
+    singleAddress,
+    hasAddresses,
+    hasMultipleAddresses,
+    addressesFoundText,
+    noAddressFoundText,
+    buttons: { continueButton, manualLink },
+    t,
+    language,
+    ...selector
+  }
+}
+
+/**
+ * The postcode lookup manual form view model
+ * @param {PostcodeLookupSessionData} data
+ * @param {Translator} translator
+ * @param {PostcodeLookupManualPayload} [payload]
+ * @param {Error} [err]
+ */
+export function manualViewModel(data, translator, payload, err) {
+  const { title, hint, sourceUrl, languages } = data.initial
+  const formPath = sourceUrl
+  const href = getHref()
+
+  const { t } = translator
+
+  const backLink = {
+    href,
+    text: t(COMMON_BACK)
+  }
+
+  const {
+    errors,
+    line1Error,
+    line2Error,
+    townError,
+    countyError,
+    postcodeError
+  } = buildErrors(err)
+
+  const fields = getManualFields(
+    payload,
+    line1Error,
+    line2Error,
+    townError,
+    countyError,
+    postcodeError,
+    translator.language
+  )
+
+  const continueButton = {
+    text: t('postcodeLookup.useThisAddress'),
+    classes: GOVUK_MARGIN_RIGHT_1
+  }
+  const detailsLink = {
+    text: t('postcodeLookup.findAnAddressInstead'),
+    href
+  }
+
+  const selector = languages?.length ? { languages } : {}
+
+  return {
+    step: steps.manual,
+    showTitle: true,
+    name: title,
+    serviceUrl: formPath,
+    pageTitle: title,
+    backLink,
+    errors,
+    hint,
+    fields,
+    buttons: { continueButton, detailsLink },
+    t,
+    language: translator.language,
+    ...selector
+  }
+}
+
+/** @typedef { ValidationErrorItem | undefined } OptionalValidationErrorItem */
+
+/**
+ * @import { ObjectSchema, ValidationErrorItem } from 'joi'
+ * @import { Address, PostcodeLookupDetailsData, PostcodeLookupDetailsPayload, PostcodeLookupManualPayload, PostcodeLookupSelectPayload, PostcodeLookupSessionData } from '~/src/plugins/postcode-lookup/types.js'
+ * @import { Translator } from '~/src/plugins/postcode-lookup/types.js'
+ */

@@ -1,0 +1,4 @@
+// GOV.UK Frontend v5.x
+// Import the public GOV.UK Frontend Sass entry point rather than
+// reaching into the internal core/_all.scss file.
+@import "node_modules/govuk-frontend/dist/govuk/index";

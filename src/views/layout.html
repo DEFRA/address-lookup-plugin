@@ -1,0 +1,24 @@
+{% extends "govuk/template.njk" %}
+
+{% from "govuk/components/header/macro.njk" import govukHeader %}
+
+{% block head %}
+    <link href="{{ assetPath }}/stylesheets/application.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block header %}
+    {{ govukHeader({
+        homepageUrl: "#",
+        containerClasses: "govuk-width-container",
+        serviceName: serviceName,
+        serviceUrl: "/"
+    }) }}
+{% endblock %}
+
+{% block pageTitle %}
+    {{ pageHeading }} - {{ pageTitle }}
+{% endblock %}
+
+{% block bodyEnd %}
+    <script type="module" src="{{ assetPath }}/govuk-frontend.min.js"></script>
+{% endblock %}
