@@ -78,6 +78,7 @@ npm run build
 This creates the compiled server files in `.server/` and also builds the GOV.UK SCSS bundle into `public/build/stylesheets/application.css`.
 
 You can pack the compiled code into a `.tgz` file, and copy it to another codebase area with:
+
 ```bash
 npm pack
 cp defra-address-lookup-plugin-1.0.0.tgz ../<change-to-your-otherrepo-folder>/.

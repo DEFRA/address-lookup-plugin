@@ -32,6 +32,7 @@
     "format": "npm run format:check -- --write",
     "format:check": "prettier --cache --cache-location .cache/prettier --cache-strategy content --check \"**/*.{cjs,js,json,md,mjs,scss,ts}\"",
     "lint": "npm run lint:js && npm run lint:types",
+    "lint:editorconfig": "editorconfig-checker",
     "lint:js": "node --max-old-space-size=8192 ./node_modules/.bin/eslint --cache --cache-location .cache/eslint --cache-strategy content --color .",
     "lint:scss": "stylelint --cache --cache-location .cache/stylelint --cache-strategy content --color --ignore-path .gitignore --max-warnings 0 \"**/*.scss\"",
     "lint:types": "tsc --noEmit",

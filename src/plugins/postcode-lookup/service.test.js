@@ -40,7 +40,9 @@ describe('Postcode lookup service', () => {
     })
 
     it('should return an empty response when an error is encountered', async () => {
-      jest.mocked(getJson).mockImplementationOnce(() => { throw new Error('api error') })
+      jest.mocked(getJson).mockImplementationOnce(() => {
+        throw new Error('api error')
+      })
 
       const results = await service.searchByPostcode('NW1 6XE', 'apikey')
 

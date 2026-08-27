@@ -20,7 +20,7 @@ export const home = [
       dispatch(
         /** @type {PostcodeLookupRequest} */ (/** @type {unknown} */ (request)),
         h,
-        { sourceUrl: '/', title: 'Postcode lookup', metadata: { 'key1': 'val1'} }
+        { sourceUrl: '/', title: 'Postcode lookup', metadata: { key1: 'val1' } }
       )
   }
 ]

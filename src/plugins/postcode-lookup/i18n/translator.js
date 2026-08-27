@@ -109,7 +109,7 @@ function determineWelshKeySuffix(count) {
  * @param {string} language
  * @param {string} key
  * @param {{ count?: number }} [options]
- * @returns 
+ * @returns
  */
 function getValueByPath(language, key, options) {
   const obj = translations[language]
@@ -121,9 +121,11 @@ function getValueByPath(language, key, options) {
     }
   }
   // @ts-expect-error - dynamic type nesting
-  const res = key.split('.').reduce((value, part) => value[part], obj);
+  const res = key.split('.').reduce((value, part) => value[part], obj)
 
-  return options?.count !== undefined ? res.replace('[[count]]', options.count.toString()) : res
+  return options?.count !== undefined
+    ? res.replace('[[count]]', options.count.toString())
+    : res
 }
 
 /**

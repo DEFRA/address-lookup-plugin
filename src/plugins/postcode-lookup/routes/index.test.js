@@ -24,7 +24,10 @@ jest.mock('~/src/plugins/postcode-lookup/models/index.js', () => {
   return {
     JOURNEY_BASE_URL: '/postcode-lookup',
     steps: { details: 'details', select: 'select', manual: 'manual' },
-    stepSchema: mockJoi.string().valid('details', 'select', 'manual').required(),
+    stepSchema: mockJoi
+      .string()
+      .valid('details', 'select', 'manual')
+      .required(),
     createDetailsPayloadSchema: () => mockJoi.object().unknown(true),
     createSelectPayloadSchema: () => mockJoi.object().unknown(true),
     createManualPayloadSchema: () => mockJoi.object().unknown(true),
@@ -51,13 +54,14 @@ const session = {
 function createRequest(payload = {}, query = {}) {
   return /** @type {PostcodeLookupRequest} */ (
     /** @type {unknown} */ ({
-    payload,
-    query,
-    yar: {
-      get: jest.fn().mockReturnValue(session),
-      set: jest.fn()
-    }
-  }))
+      payload,
+      query,
+      yar: {
+        get: jest.fn().mockReturnValue(session),
+        set: jest.fn()
+      }
+    })
+  )
 }
 
 function createToolkit() {
@@ -66,11 +70,12 @@ function createToolkit() {
 
   return /** @type {ResponseToolkit & { code: jest.Mock }} */ (
     /** @type {unknown} */ ({
-    response,
-    code,
-    view: jest.fn().mockReturnValue(response),
-    redirect: jest.fn().mockReturnValue({ code })
-  }))
+      response,
+      code,
+      view: jest.fn().mockReturnValue(response),
+      redirect: jest.fn().mockReturnValue({ code })
+    })
+  )
 }
 
 /**
@@ -134,7 +139,11 @@ describe('postcode-lookup routes', () => {
       })
 
       expect(request.yar.set).toHaveBeenCalledWith(JOURNEY_BASE_URL, {
-        initial: { sourceUrl: '/source', step: steps.manual, title: 'Postcode lookup' },
+        initial: {
+          sourceUrl: '/source',
+          step: steps.manual,
+          title: 'Postcode lookup'
+        },
         details: { postcodeQuery: '', buildingNameQuery: '' }
       })
       expect(toolkit.redirect).toHaveBeenCalledWith(
@@ -146,7 +155,9 @@ describe('postcode-lookup routes', () => {
 
   describe('getRoutes', () => {
     test('should return GET and POST routes', () => {
-      expect(getRoutes(options).map((route) => [route.method, route.path])).toEqual([
+      expect(
+        getRoutes(options).map((route) => [route.method, route.path])
+      ).toEqual([
         ['GET', JOURNEY_BASE_URL],
         ['POST', JOURNEY_BASE_URL]
       ])

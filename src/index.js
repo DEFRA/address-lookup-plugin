@@ -41,16 +41,20 @@ const init = async () => {
     }
   })
 
-  const nunjucks = Nunjucks.configure([viewsPath, join(govukFrontendPath, 'dist')], {
-    autoescape: true,
-    noCache: true
-  })
+  const nunjucks = Nunjucks.configure(
+    [viewsPath, join(govukFrontendPath, 'dist')],
+    {
+      autoescape: true,
+      noCache: true
+    }
+  )
 
   server.views({
     engines: {
       html: {
         compile: (/** @type {string} */ src) => {
-          return (/** @type {object} */ context) => nunjucks.renderString(src, context)
+          return (/** @type {object} */ context) =>
+            nunjucks.renderString(src, context)
         }
       }
     },

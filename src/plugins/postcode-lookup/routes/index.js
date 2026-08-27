@@ -108,11 +108,7 @@ function getRoute(options) {
       const { step, language } = query
       const session = getSessionState(request)
 
-      const translator = getDispatchTranslator(
-        request,
-        language,
-        options
-      )
+      const translator = getDispatchTranslator(request, language, options)
 
       const model =
         step === steps.manual
@@ -257,11 +253,12 @@ async function selectPostHandler(request, h, options) {
   const receiverPath = options.callbackUrl ?? defaultReceiverPath
   const returnUrl = new URL(receiverPath, 'https://local')
   for (const [key, val] of Object.entries(combinedModel)) {
-    const value =
-      typeof val === 'string' ? val : JSON.stringify(val)
+    const value = typeof val === 'string' ? val : JSON.stringify(val)
     returnUrl.searchParams.append(key, value)
   }
-  return h.redirect(`${receiverPath}${returnUrl.search}`).code(StatusCodes.SEE_OTHER)
+  return h
+    .redirect(`${receiverPath}${returnUrl.search}`)
+    .code(StatusCodes.SEE_OTHER)
 }
 
 /**
@@ -298,11 +295,12 @@ function manualPostHandler(request, h, options) {
   const receiverPath = options.callbackUrl ?? defaultReceiverPath
   const returnUrl = new URL(receiverPath, 'https://local')
   for (const [key, val] of Object.entries(combinedModel)) {
-    const value =
-      typeof val === 'string' ? val : JSON.stringify(val)
+    const value = typeof val === 'string' ? val : JSON.stringify(val)
     returnUrl.searchParams.append(key, value)
   }
-  return h.redirect(`${receiverPath}${returnUrl.search}`).code(StatusCodes.SEE_OTHER)
+  return h
+    .redirect(`${receiverPath}${returnUrl.search}`)
+    .code(StatusCodes.SEE_OTHER)
 }
 
 /**
