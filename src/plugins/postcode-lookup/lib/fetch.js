@@ -17,10 +17,17 @@ export async function request(method, url, options) {
   if (response.statusCode !== StatusCodes.OK) {
     const statusCode = response.statusCode
     let err
+    const errorBody = /** @type {unknown} */ (body)
 
-    if ('message' in body && typeof body.message === 'string' && body.message) {
-      const cause = 'cause' in body ? body.cause : undefined
-      err = new Error(body.message, { cause })
+    if (
+      errorBody &&
+      typeof errorBody === 'object' &&
+      'message' in errorBody &&
+      typeof errorBody.message === 'string' &&
+      errorBody.message
+    ) {
+      const cause = 'cause' in errorBody ? errorBody.cause : undefined
+      err = new Error(errorBody.message, { cause })
     } else {
       err = new Error(`HTTP status code ${statusCode}`)
     }

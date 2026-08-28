@@ -1,7 +1,7 @@
 import { StatusCodes } from 'http-status-codes'
-import mockJoi from 'joi'
 
 import { getTranslator } from '~/src/plugins/postcode-lookup/i18n/translator.js'
+import { getJson } from '~/src/plugins/postcode-lookup/lib/fetch.js'
 import {
   JOURNEY_BASE_URL,
   steps
@@ -12,30 +12,8 @@ import {
   getRoutes,
   getSessionState
 } from '~/src/plugins/postcode-lookup/routes/index.js'
-import * as service from '~/src/plugins/postcode-lookup/service.js'
 
-jest.mock('~/src/plugins/postcode-lookup/service.js', () => ({
-  searchByUPRN: jest.fn()
-}))
-jest.mock('~/src/plugins/postcode-lookup/utils.js', () => ({
-  resolveLanguage: jest.fn().mockReturnValue('en-GB')
-}))
-jest.mock('~/src/plugins/postcode-lookup/models/index.js', () => {
-  return {
-    JOURNEY_BASE_URL: '/postcode-lookup',
-    steps: { details: 'details', select: 'select', manual: 'manual' },
-    stepSchema: mockJoi
-      .string()
-      .valid('details', 'select', 'manual')
-      .required(),
-    createDetailsPayloadSchema: () => mockJoi.object().unknown(true),
-    createSelectPayloadSchema: () => mockJoi.object().unknown(true),
-    createManualPayloadSchema: () => mockJoi.object().unknown(true),
-    detailsViewModel: jest.fn().mockReturnValue({ step: 'details' }),
-    manualViewModel: jest.fn().mockReturnValue({ step: 'manual' }),
-    selectViewModel: jest.fn().mockResolvedValue({ step: 'select' })
-  }
-})
+jest.mock('~/src/plugins/postcode-lookup/lib/fetch.js')
 
 const options = {
   ordnanceSurveyApiKey: 'api-key',
@@ -51,13 +29,18 @@ const session = {
   details: { postcodeQuery: 'NW1 6XE', buildingNameQuery: '' }
 }
 
-function createRequest(payload = {}, query = {}) {
+/**
+ * @param {unknown} payload
+ * @param {unknown} query
+ * @param { unknown | undefined } yarGet
+ */
+function createRequest(payload = {}, query = {}, yarGet = undefined) {
   return /** @type {PostcodeLookupRequest} */ (
     /** @type {unknown} */ ({
       payload,
       query,
       yar: {
-        get: jest.fn().mockReturnValue(session),
+        get: jest.fn().mockReturnValue(yarGet ?? session),
         set: jest.fn()
       }
     })
@@ -119,11 +102,11 @@ describe('postcode-lookup routes', () => {
     })
 
     test('should store a language query before creating a translator', () => {
-      const request = createRequest()
+      const request = createRequest({}, {},  'cy')
       const translator = getDispatchTranslator(request, 'cy', undefined)
 
       expect(request.yar.set).toHaveBeenCalledWith('language', 'cy')
-      expect(translator.language).toBe('en-GB')
+      expect(translator.language).toBe('cy')
     })
   })
 
@@ -171,7 +154,7 @@ describe('postcode-lookup routes', () => {
 
       expect(toolkit.view).toHaveBeenCalledWith(
         'postcode-lookup/views/postcode-lookup-details',
-        { step: steps.details }
+        expect.objectContaining({ step: steps.details })
       )
     })
 
@@ -183,7 +166,7 @@ describe('postcode-lookup routes', () => {
 
       expect(toolkit.view).toHaveBeenCalledWith(
         'postcode-lookup/views/postcode-lookup-details',
-        { step: steps.manual }
+        expect.objectContaining({ step: steps.manual })
       )
     })
 
@@ -201,16 +184,30 @@ describe('postcode-lookup routes', () => {
       expect(request.yar.set).toHaveBeenCalledWith(JOURNEY_BASE_URL, session)
       expect(toolkit.view).toHaveBeenCalledWith(
         'postcode-lookup/views/postcode-lookup-details',
-        { step: steps.select }
+        expect.objectContaining({ step: steps.select })
       )
     })
 
     test('POST select should redirect with the selected address', async () => {
       const [, route] = getRoutes(options)
-      jest.mocked(service.searchByUPRN).mockResolvedValueOnce([
-        // @ts-expect-error - partial mock of data
-        { uprn: '123', postcode: 'NW1 6XE' }
-      ])
+      jest.mocked(getJson).mockResolvedValueOnce(
+        // @ts-expect-error - parital mock of data
+        {
+          body: {
+            results: [
+            {
+              DPA: {
+                UPRN: '123',
+                BUILDING_NUMBER: '44',
+                BUILDING_NAME: 'HIGH STREET',
+                DEPENDENT_LOCALITY: 'TESTAREA',
+                POST_TOWN: 'TESTINGTON',
+                POSTCODE: 'NW1 6XE',
+                ADDRESS: 'TEST ADDRESS'
+              }
+            }]
+          }
+      })
       const toolkit = createToolkit()
 
       await invokeHandler(
@@ -220,7 +217,7 @@ describe('postcode-lookup routes', () => {
       )
 
       expect(toolkit.redirect).toHaveBeenCalledWith(
-        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&sourceUrl=%2Fsource&foo=bar&uprn=123&postcode=NW1+6XE'
+        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&sourceUrl=%2Fsource&foo=bar&uprn=123&address=TEST+ADDRESS&addressLine1=High+Street+44&addressLine2=Testarea&town=Testington&county=&postcode=NW1+6XE&formatted=High+Street+44%2C+Testarea%2C+Testington%2C+NW1+6XE'
       )
       expect(toolkit.code).toHaveBeenCalledWith(StatusCodes.SEE_OTHER)
     })
