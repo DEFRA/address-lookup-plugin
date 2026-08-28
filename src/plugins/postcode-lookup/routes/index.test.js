@@ -102,7 +102,7 @@ describe('postcode-lookup routes', () => {
     })
 
     test('should store a language query before creating a translator', () => {
-      const request = createRequest({}, {},  'cy')
+      const request = createRequest({}, {}, 'cy')
       const translator = getDispatchTranslator(request, 'cy', undefined)
 
       expect(request.yar.set).toHaveBeenCalledWith('language', 'cy')
@@ -195,19 +195,21 @@ describe('postcode-lookup routes', () => {
         {
           body: {
             results: [
-            {
-              DPA: {
-                UPRN: '123',
-                BUILDING_NUMBER: '44',
-                BUILDING_NAME: 'HIGH STREET',
-                DEPENDENT_LOCALITY: 'TESTAREA',
-                POST_TOWN: 'TESTINGTON',
-                POSTCODE: 'NW1 6XE',
-                ADDRESS: 'TEST ADDRESS'
+              {
+                DPA: {
+                  UPRN: '123',
+                  BUILDING_NUMBER: '44',
+                  BUILDING_NAME: 'HIGH STREET',
+                  DEPENDENT_LOCALITY: 'TESTAREA',
+                  POST_TOWN: 'TESTINGTON',
+                  POSTCODE: 'NW1 6XE',
+                  ADDRESS: 'TEST ADDRESS'
+                }
               }
-            }]
+            ]
           }
-      })
+        }
+      )
       const toolkit = createToolkit()
 
       await invokeHandler(
