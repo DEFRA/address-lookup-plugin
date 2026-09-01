@@ -121,14 +121,14 @@ describe('postcode-lookup routes', () => {
       const result = dispatch(request, toolkit, {
         sourceUrl: '/source',
         step: steps.manual,
-        title: 'Postcode lookup'
+        pageTitle: { 'en-GB': 'Postcode lookup' }
       })
 
       expect(request.yar.set).toHaveBeenCalledWith(JOURNEY_BASE_URL, {
         initial: {
           sourceUrl: '/source',
           step: steps.manual,
-          title: 'Postcode lookup'
+          pageTitle: { 'en-GB': 'Postcode lookup' }
         },
         details: { postcodeQuery: '', buildingNameQuery: '' }
       })
