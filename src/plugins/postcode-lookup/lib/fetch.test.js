@@ -64,9 +64,7 @@ describe('HTTP service', () => {
   })
 
   describe('HTTP method helpers', () => {
-    it.each([
-      ['get', get]
-    ])('uses the %s method', async (method, helper) => {
+    it.each([['get', get]])('uses the %s method', async (method, helper) => {
       await expect(helper(url, options)).resolves.toEqual({ response, body })
 
       expect(Wreck.request).toHaveBeenCalledWith(method, url.href, options)
@@ -74,16 +72,17 @@ describe('HTTP service', () => {
   })
 
   describe('JSON helpers', () => {
-    it.each([
-      ['get', getJson]
-    ])('requests JSON with the %s method', async (method, helper) => {
-      await expect(helper(url, options)).resolves.toEqual({ response, body })
+    it.each([['get', getJson]])(
+      'requests JSON with the %s method',
+      async (method, helper) => {
+        await expect(helper(url, options)).resolves.toEqual({ response, body })
 
-      expect(Wreck.request).toHaveBeenCalledWith(method, url.href, {
-        ...options,
-        json: true
-      })
-    })
+        expect(Wreck.request).toHaveBeenCalledWith(method, url.href, {
+          ...options,
+          json: true
+        })
+      }
+    )
 
     it('uses JSON by default when no options are supplied', async () => {
       await getJson(url)

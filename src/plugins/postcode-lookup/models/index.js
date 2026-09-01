@@ -477,9 +477,10 @@ export async function selectViewModel(data, translator, payload, err) {
     addressCount
   } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
-  const title = hasAddresses && initial.pageTitle
-    ? initial.pageTitle[language]
-    : t('postcodeLookup.noAddressFoundTitle')
+  const title =
+    hasAddresses && initial.pageTitle
+      ? initial.pageTitle[language]
+      : t('postcodeLookup.noAddressFoundTitle')
   const formPath = initial.sourceUrl
   const href = getHref()
 
