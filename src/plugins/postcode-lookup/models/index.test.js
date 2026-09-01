@@ -1,6 +1,6 @@
 import Joi from 'joi'
 
-import { buildErrors } from '~/src/plugins/postcode-lookup/models/index.js'
+import { buildErrors, createDetailsPayloadSchema, createManualPayloadSchema, createSelectPayloadSchema } from '~/src/plugins/postcode-lookup/models/index.js'
 
 describe('model-index', () => {
   it('should handle no errors', () => {
@@ -10,21 +10,27 @@ describe('model-index', () => {
   it('should handle field error', () => {
     expect(
       buildErrors(
-        new Joi.ValidationError('test error', [
-          {
-            message: 'test field error',
-            path: ['addressLine1'],
-            type: 'error'
-          }
-        ], {})
+        new Joi.ValidationError(
+          'test error',
+          [
+            {
+              message: 'test field error',
+              path: ['addressLine1'],
+              type: 'error'
+            }
+          ],
+          {}
+        )
       )
     ).toEqual({
       buildingNameQueryError: undefined,
       countyError: undefined,
-      errors: [{
-        href: '#addressLine1',
-        text: 'test field error'
-      }],
+      errors: [
+        {
+          href: '#addressLine1',
+          text: 'test field error'
+        }
+      ],
       line1Error: {
         message: 'test field error',
         path: ['addressLine1'],
@@ -36,5 +42,11 @@ describe('model-index', () => {
       townError: undefined,
       uprnError: undefined
     })
+  })
+
+  it('should create schemas', () => {
+    expect(Joi.isSchema(createDetailsPayloadSchema())).toBe(true)
+    expect(Joi.isSchema(createSelectPayloadSchema())).toBe(true)
+    expect(Joi.isSchema(createManualPayloadSchema())).toBe(true)
   })
 })
