@@ -34,7 +34,7 @@ export const JOURNEY_BASE_URL = '/postcode-lookup'
  * Build form errors
  * @param {Error} [err]
  */
-function buildErrors(err) {
+export function buildErrors(err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
