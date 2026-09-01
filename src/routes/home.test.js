@@ -37,8 +37,9 @@ describe('home routes', () => {
 
     expect(dispatch).toHaveBeenCalledWith(request, toolkit, {
       sourceUrl: '/',
-      title: 'Postcode lookup',
-      metadata: { key1: 'val1' }
+      pageTitle: { 'en-GB': 'Postcode lookup' },
+      metadata: { key1: 'val1' },
+      languages: expect.anything()
     })
   })
 })

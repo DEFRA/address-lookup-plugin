@@ -42,6 +42,9 @@ function createRequest(payload = {}, query = {}, yarGet = undefined) {
       yar: {
         get: jest.fn().mockReturnValue(yarGet ?? session),
         set: jest.fn()
+      },
+      url: {
+        href: '/'
       }
     })
   )

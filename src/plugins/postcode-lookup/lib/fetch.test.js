@@ -2,16 +2,8 @@ import Wreck from '@hapi/wreck'
 import { StatusCodes } from 'http-status-codes'
 
 import {
-  del,
-  delJson,
   get,
   getJson,
-  patch,
-  patchJson,
-  post,
-  postJson,
-  put,
-  putJson,
   request
 } from '~/src/plugins/postcode-lookup/lib/fetch.js'
 
@@ -73,11 +65,7 @@ describe('HTTP service', () => {
 
   describe('HTTP method helpers', () => {
     it.each([
-      ['get', get],
-      ['patch', patch],
-      ['post', post],
-      ['put', put],
-      ['delete', del]
+      ['get', get]
     ])('uses the %s method', async (method, helper) => {
       await expect(helper(url, options)).resolves.toEqual({ response, body })
 
@@ -87,11 +75,7 @@ describe('HTTP service', () => {
 
   describe('JSON helpers', () => {
     it.each([
-      ['get', getJson],
-      ['patch', patchJson],
-      ['post', postJson],
-      ['put', putJson],
-      ['delete', delJson]
+      ['get', getJson]
     ])('requests JSON with the %s method', async (method, helper) => {
       await expect(helper(url, options)).resolves.toEqual({ response, body })
 
@@ -120,7 +104,7 @@ describe('HTTP service', () => {
       )
     jest.mocked(Wreck.read).mockResolvedValue(errorBody)
 
-    await expect(request('post', url, options)).rejects.toMatchObject({
+    await expect(request('get', url, options)).rejects.toMatchObject({
       isBoom: true,
       message: 'Request failed',
       data: errorBody,
