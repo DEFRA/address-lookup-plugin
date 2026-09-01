@@ -178,7 +178,7 @@ function getDetailsFields(
  * @param {Address[]} addresses
  * @param {string} language
  */
-function getSelectFields(
+export function getSelectFields(
   details,
   hasMultipleAddresses,
   singleAddress,
