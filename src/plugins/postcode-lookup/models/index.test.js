@@ -64,20 +64,18 @@ describe('model-index', () => {
   })
 
   it('should return single address in select view', async () => {
-    jest
-      .mocked(search)
-      .mockResolvedValueOnce([
-        {
-          uprn: 'uprn123',
-          address: 'address',
-          addressLine1: 'line1',
-          addressLine2: 'line2',
-          town: 'town',
-          county: 'county',
-          postcode: 'TS1 1TS',
-          formatted: 'line1, line2, town, TS1 1TS'
-        }
-      ])
+    jest.mocked(search).mockResolvedValueOnce([
+      {
+        uprn: 'uprn123',
+        address: 'address',
+        addressLine1: 'line1',
+        addressLine2: 'line2',
+        town: 'town',
+        county: 'county',
+        postcode: 'TS1 1TS',
+        formatted: 'line1, line2, town, TS1 1TS'
+      }
+    ])
     const model = await selectViewModel(
       // @ts-expect-error - partial mock of test data
       {
@@ -108,15 +106,21 @@ describe('model-index', () => {
           pageTitle: { 'en-GB': 'title1' },
           sourceUrl: '/url1',
           languages: [
-            { name: 'English', code:'en-GB' },
-            { name: 'Cymraeg', code:'cy' }
+            { name: 'English', code: 'en-GB' },
+            { name: 'Cymraeg', code: 'cy' }
           ]
         }
       },
       getTranslator('en-GB')
     )
     expect(model.pageTitle).toBe('title1')
-    expect(Object.keys(model.fields)).toEqual(['addressLine1', 'addressLine2', 'town', 'county', 'postcode'])
+    expect(Object.keys(model.fields)).toEqual([
+      'addressLine1',
+      'addressLine2',
+      'town',
+      'county',
+      'postcode'
+    ])
     expect(model.languages).toHaveLength(2)
   })
 
@@ -128,43 +132,53 @@ describe('model-index', () => {
           pageTitle: { 'en-GB': 'title1' },
           sourceUrl: '/url1',
           languages: [
-            { name: 'English', code:'en-GB' },
-            { name: 'Cymraeg', code:'cy' }
+            { name: 'English', code: 'en-GB' },
+            { name: 'Cymraeg', code: 'cy' }
           ]
         }
       },
       getTranslator('en-GB'),
       {},
-      new Joi.ValidationError('test error', [
-        {
-          message: 'line1 error',
-          path: ['addressLine1'],
-          type: 'error'
-        },
-        {
-          message: 'line2 error',
-          path: ['addressLine2'],
-          type: 'error'
-        },
-        {
-          message: 'town error',
-          path: ['town'],
-          type: 'error'
-        },
-        {
-          message: 'county error',
-          path: ['county'],
-          type: 'error'
-        },
-        {
-          message: 'postcode error',
-          path: ['postcode'],
-          type: 'error'
-        }
-      ], undefined)
+      new Joi.ValidationError(
+        'test error',
+        [
+          {
+            message: 'line1 error',
+            path: ['addressLine1'],
+            type: 'error'
+          },
+          {
+            message: 'line2 error',
+            path: ['addressLine2'],
+            type: 'error'
+          },
+          {
+            message: 'town error',
+            path: ['town'],
+            type: 'error'
+          },
+          {
+            message: 'county error',
+            path: ['county'],
+            type: 'error'
+          },
+          {
+            message: 'postcode error',
+            path: ['postcode'],
+            type: 'error'
+          }
+        ],
+        undefined
+      )
     )
     expect(model.pageTitle).toBe('title1')
-    expect(Object.keys(model.fields)).toEqual(['addressLine1', 'addressLine2', 'town', 'county', 'postcode'])
+    expect(Object.keys(model.fields)).toEqual([
+      'addressLine1',
+      'addressLine2',
+      'town',
+      'county',
+      'postcode'
+    ])
     expect(model.languages).toHaveLength(2)
     expect(model.fields.addressLine1.errorMessage?.text).toBe('line1 error')
     expect(model.fields.addressLine2.errorMessage?.text).toBe('line2 error')
@@ -181,15 +195,18 @@ describe('model-index', () => {
           pageTitle: { 'en-GB': 'title1' },
           sourceUrl: '/url1',
           languages: [
-            { name: 'English', code:'en-GB' },
-            { name: 'Cymraeg', code:'cy' }
+            { name: 'English', code: 'en-GB' },
+            { name: 'Cymraeg', code: 'cy' }
           ]
         }
       },
       getTranslator('en-GB')
     )
     expect(model.pageTitle).toBe('title1')
-    expect(Object.keys(model.fields)).toEqual(['postcodeQuery', 'buildingNameQuery'])
+    expect(Object.keys(model.fields)).toEqual([
+      'postcodeQuery',
+      'buildingNameQuery'
+    ])
     expect(model.languages).toHaveLength(2)
   })
 
