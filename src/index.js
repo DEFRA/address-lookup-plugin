@@ -10,6 +10,7 @@ import Yar from '@hapi/yar'
 import Nunjucks from 'nunjucks'
 import resolvePkg from 'resolve'
 
+import { applyUrlParam } from '~/src/nunjucks/filters/applyUrlParam.js'
 import { frontend } from '~/src/plugins/frontend.js'
 import { postcodeLookupPlugin } from '~/src/plugins/postcode-lookup/index.js'
 import { home } from '~/src/routes/home.js'
@@ -48,6 +49,7 @@ const init = async () => {
       noCache: true
     }
   )
+  nunjucks.addFilter('applyUrlParam', applyUrlParam)
 
   server.views({
     engines: {

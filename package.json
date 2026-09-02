@@ -69,6 +69,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@types/convict": "^6.1.6",
     "@types/eslint": "^9.6.1",
+    "@types/jest": "^30.0.0",
     "@types/nunjucks": "^3.2.6",
     "@types/resolve": "^1.20.6",
     "babel-loader": "^10.0.0",
@@ -82,6 +83,7 @@
     "eslint-plugin-jest": "^28.14.0",
     "eslint-plugin-jsdoc": "^50.8.0",
     "globals": "^17.3.0",
+    "global-jsdom": "^26.0.0",
     "jest": "^30.2.0",
     "jest-extended": "^7.0.0",
     "neostandard": "^0.12.2",
@@ -90,9 +92,9 @@
     "stylelint": "^16.25.0",
     "stylelint-config-gds": "^2.0.0",
     "tsc-alias": "^1.8.16",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.56.1",
-    "tsx": "^4.20.6"
+    "typescript-eslint": "^8.56.1"
   },
   "allowScripts": {
     "@defra/hapi-tracing@1.30.0": true,

@@ -115,7 +115,10 @@ function getRoute(options) {
           ? manualViewModel(session, translator)
           : detailsViewModel(session, translator)
 
-      return h.view(viewName, model)
+      return h.view(viewName, {
+        ...model,
+        currentPath: `${request.path}${request.url.search}`
+      })
     },
     options: {
       validate: {
@@ -305,5 +308,5 @@ function manualPostHandler(request, h, options) {
 
 /**
  * @import { ResponseObject, ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { GenericRequest, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/plugins/postcode-lookup/types.js'
+ * @import { GenericRequest, PostcodeLookupConfiguration, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/plugins/postcode-lookup/types.js'
  */

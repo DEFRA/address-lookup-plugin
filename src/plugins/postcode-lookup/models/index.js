@@ -34,7 +34,7 @@ export const JOURNEY_BASE_URL = '/postcode-lookup'
  * Build form errors
  * @param {Error} [err]
  */
-function buildErrors(err) {
+export function buildErrors(err) {
   const hasErrors = Joi.isError(err) && err.details.length > 0
 
   if (!hasErrors) {
@@ -178,7 +178,7 @@ function getDetailsFields(
  * @param {Address[]} addresses
  * @param {string} language
  */
-function getSelectFields(
+export function getSelectFields(
   details,
   hasMultipleAddresses,
   singleAddress,
@@ -410,9 +410,9 @@ function getHref(step) {
  * @param {Error} [err]
  */
 export function detailsViewModel(data, translator, payload, err) {
-  const { title, hint, sourceUrl, languages } = data.initial
+  const { pageTitle, sourceUrl, languages } = data.initial
 
-  const { t } = translator
+  const { language, t } = translator
 
   const backLink = {
     href: sourceUrl,
@@ -443,16 +443,15 @@ export function detailsViewModel(data, translator, payload, err) {
   return {
     step: steps.details,
     showTitle: true,
-    name: title,
     serviceUrl: sourceUrl,
-    pageTitle: title,
-    hint,
+    pageTitle: pageTitle ? pageTitle[language] : 'Postcode lookup',
     backLink,
     errors,
     fields,
     buttons: { continueButton, manualLink },
     t,
     language: translator.language,
+    languages,
     ...selector
   }
 }
@@ -478,9 +477,10 @@ export async function selectViewModel(data, translator, payload, err) {
     addressCount
   } = await getAddresses(postcodeQuery, buildingNameQuery, apiKey)
 
-  const title = hasAddresses
-    ? initial.title
-    : t('postcodeLookup.noAddressFoundTitle')
+  const title =
+    hasAddresses && initial.pageTitle
+      ? initial.pageTitle[language]
+      : t('postcodeLookup.noAddressFoundTitle')
   const formPath = initial.sourceUrl
   const href = getHref()
 
@@ -532,7 +532,6 @@ export async function selectViewModel(data, translator, payload, err) {
   return {
     step: steps.select,
     showTitle: true,
-    name: title,
     serviceUrl: formPath,
     pageTitle: title,
     backLink,
@@ -561,11 +560,11 @@ export async function selectViewModel(data, translator, payload, err) {
  * @param {Error} [err]
  */
 export function manualViewModel(data, translator, payload, err) {
-  const { title, hint, sourceUrl, languages } = data.initial
+  const { pageTitle, languages, sourceUrl } = data.initial
   const formPath = sourceUrl
   const href = getHref()
 
-  const { t } = translator
+  const { language, t } = translator
 
   const backLink = {
     href,
@@ -605,12 +604,10 @@ export function manualViewModel(data, translator, payload, err) {
   return {
     step: steps.manual,
     showTitle: true,
-    name: title,
     serviceUrl: formPath,
-    pageTitle: title,
+    pageTitle: pageTitle ? pageTitle[language] : 'Postcode lookup',
     backLink,
     errors,
-    hint,
     fields,
     buttons: { continueButton, detailsLink },
     t,
