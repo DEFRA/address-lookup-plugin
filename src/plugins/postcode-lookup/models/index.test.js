@@ -77,6 +77,60 @@ describe('model-index', () => {
       { text: '50 Test Street, Testington, TS1 1TS', value: 'uprn500' }
     ])
   })
+
+  it('should return a hidden UPRN field for a single address', () => {
+    const details = { postcodeQuery: 'TS1 1TS', buildingNameQuery: '' }
+    const singleAddress = /** @type {Address} */ ({
+      uprn: 'uprn123',
+      formatted: '1 Test Street, Testington, TS1 1TS'
+    })
+
+    const res = getSelectFields(
+      details,
+      false,
+      singleAddress,
+      undefined,
+      undefined,
+      [singleAddress],
+      'en-GB'
+    )
+
+    expect(res.uprn).toEqual({
+      id: 'uprn',
+      name: 'uprn',
+      label: undefined,
+      value: 'uprn123',
+      errorMessage: undefined,
+      items: undefined,
+      type: 'hidden'
+    })
+  })
+
+  it('should retain an invalid UPRN selection and display its error', () => {
+    const details = { postcodeQuery: 'TS1 1TS', buildingNameQuery: '' }
+    const uprnError = {
+      message: 'Select an address',
+      path: ['uprn'],
+      type: 'any.required'
+    }
+
+    const res = getSelectFields(
+      details,
+      false,
+      undefined,
+      { step: 'select', uprn: 'uprn123' },
+      uprnError,
+      [],
+      'en-GB'
+    )
+
+    expect(res.uprn).toMatchObject({
+      value: 'uprn123',
+      errorMessage: { text: 'Select an address' },
+      items: undefined,
+      type: undefined
+    })
+  })
 })
 
 /**
