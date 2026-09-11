@@ -120,6 +120,7 @@ describe('postcode-lookup routes', () => {
 
       const result = dispatch(request, toolkit, {
         sourceUrl: '/source',
+        metadata: { 'key1': 'val1' },
         step: steps.manual,
         pageTitle: { 'en-GB': 'Postcode lookup' }
       })
@@ -127,6 +128,7 @@ describe('postcode-lookup routes', () => {
       expect(request.yar.set).toHaveBeenCalledWith(JOURNEY_BASE_URL, {
         initial: {
           sourceUrl: '/source',
+          metadata: { 'key1': 'val1' },
           step: steps.manual,
           pageTitle: { 'en-GB': 'Postcode lookup' }
         },
@@ -222,7 +224,7 @@ describe('postcode-lookup routes', () => {
       )
 
       expect(toolkit.redirect).toHaveBeenCalledWith(
-        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&sourceUrl=%2Fsource&foo=bar&uprn=123&address=TEST+ADDRESS&addressLine1=High+Street+44&addressLine2=Testarea&town=Testington&county=&postcode=NW1+6XE&formatted=High+Street+44%2C+Testarea%2C+Testington%2C+NW1+6XE'
+        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&foo=bar&uprn=123&address=TEST+ADDRESS&addressLine1=High+Street+44&addressLine2=Testarea&town=Testington&county=&postcode=NW1+6XE&formatted=High+Street+44%2C+Testarea%2C+Testington%2C+NW1+6XE'
       )
       expect(toolkit.code).toHaveBeenCalledWith(StatusCodes.SEE_OTHER)
     })
@@ -245,7 +247,7 @@ describe('postcode-lookup routes', () => {
       )
 
       expect(toolkit.redirect).toHaveBeenCalledWith(
-        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&sourceUrl=%2Fsource&foo=bar&step=manual&addressLine1=221B+Baker+Street&addressLine2=&town=London&county=&postcode=NW1+6XE'
+        '/postcode-lookup/receiver?metadata=%7B%22component-id%22%3A%22123%22%7D&foo=bar&step=manual&addressLine1=221B+Baker+Street&addressLine2=&town=London&county=&postcode=NW1+6XE'
       )
       expect(toolkit.code).toHaveBeenCalledWith(StatusCodes.SEE_OTHER)
     })

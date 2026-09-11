@@ -23,11 +23,11 @@ export const home = [
         {
           sourceUrl: '/',
           pageTitle: { 'en-GB': 'Postcode lookup' },
-          metadata: { key1: 'val1' },
           languages: [
             { code: 'en-GB', name: 'English' },
             { code: 'cy', name: 'Cymraeg' }
-          ]
+          ],
+          metadata: { 'key1': 'val1' }
         }
       )
   }
