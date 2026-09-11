@@ -24,7 +24,7 @@ describe('home routes', () => {
     invokeHandler(home[0], {}, { view })
 
     expect(view).toHaveBeenCalledWith('home', {
-      pageHeading: 'Postcode lookup plugin PoC',
+      pageHeading: 'Postcode lookup plugin demo',
       pageText: 'Click the button to start the journey'
     })
   })

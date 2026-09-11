@@ -13,8 +13,10 @@
         serviceName: serviceName,
         serviceUrl: "/"
     }) }}
+{% endblock %}
 
-    {% include "partials/language-selector.html" %}
+{% block beforeContent %}
+  {% include "partials/language-selector.html" %}
 {% endblock %}
 
 {% block pageTitle %}

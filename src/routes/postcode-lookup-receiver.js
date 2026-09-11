@@ -6,7 +6,7 @@ export const postcodeLookup = [
     handler: (request, h) =>
       h.view('postcode-receiver', {
         params: request.query,
-        pageHeading: 'Postcode lookup plugin PoC',
+        pageHeading: 'Postcode lookup plugin demo',
         pageText: 'Click the button to start the journey'
       })
   }

@@ -21,7 +21,7 @@ describe('postcode lookup receiver route', () => {
 
     expect(view).toHaveBeenCalledWith('postcode-receiver', {
       params: query,
-      pageHeading: 'Postcode lookup plugin PoC',
+      pageHeading: 'Postcode lookup plugin demo',
       pageText: 'Click the button to start the journey'
     })
   })

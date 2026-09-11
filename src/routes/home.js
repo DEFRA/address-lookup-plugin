@@ -9,7 +9,7 @@ export const home = [
     path: '/',
     handler: (request, h) =>
       h.view('home', {
-        pageHeading: 'Postcode lookup plugin PoC',
+        pageHeading: 'Postcode lookup plugin demo',
         pageText: 'Click the button to start the journey'
       })
   },
