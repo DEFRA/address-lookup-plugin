@@ -16,8 +16,8 @@ describe('postcode lookup receiver route', () => {
   test('GET renders the receiver page with query parameters', () => {
     const query = { postcode: 'NW1 6XE', uprn: '123' }
     const expectedTable = [
-      [ { text: 'postcode' }, { text: 'NW1 6XE' }],
-      [ { text: 'uprn' }, { text: '123' }]
+      [{ text: 'postcode' }, { text: 'NW1 6XE' }],
+      [{ text: 'uprn' }, { text: '123' }]
     ]
     const view = jest.fn()
 

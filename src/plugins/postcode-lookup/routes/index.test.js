@@ -120,7 +120,7 @@ describe('postcode-lookup routes', () => {
 
       const result = dispatch(request, toolkit, {
         sourceUrl: '/source',
-        metadata: { 'key1': 'val1' },
+        metadata: { key1: 'val1' },
         step: steps.manual,
         pageTitle: { 'en-GB': 'Postcode lookup' }
       })
@@ -128,7 +128,7 @@ describe('postcode-lookup routes', () => {
       expect(request.yar.set).toHaveBeenCalledWith(JOURNEY_BASE_URL, {
         initial: {
           sourceUrl: '/source',
-          metadata: { 'key1': 'val1' },
+          metadata: { key1: 'val1' },
           step: steps.manual,
           pageTitle: { 'en-GB': 'Postcode lookup' }
         },

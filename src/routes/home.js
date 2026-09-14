@@ -27,7 +27,7 @@ export const home = [
             { code: 'en-GB', name: 'English' },
             { code: 'cy', name: 'Cymraeg' }
           ],
-          metadata: { 'key1': 'val1' }
+          metadata: { key1: 'val1' }
         }
       )
   }

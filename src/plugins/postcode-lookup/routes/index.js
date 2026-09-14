@@ -307,7 +307,7 @@ function manualPostHandler(request, h, options) {
  * @returns {URL}
  */
 function buildReturnUrlWithParams(receiverPath, combinedModel) {
-    const returnUrl = new URL(receiverPath, 'https://local')
+  const returnUrl = new URL(receiverPath, 'https://local')
   for (const [key, val] of Object.entries(combinedModel)) {
     if (excludedKeys.has(key)) {
       continue

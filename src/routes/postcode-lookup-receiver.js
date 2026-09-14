@@ -21,7 +21,7 @@ export const postcodeLookup = [
   {
     method: 'GET',
     path: '/postcode-lookup/receiver',
-    handler (request, h) {
+    handler(request, h) {
       return h.view('postcode-receiver', {
         paramRows: mapRows(request.query),
         pageHeading: 'Postcode lookup plugin demo',

@@ -39,7 +39,7 @@ describe('home routes', () => {
       sourceUrl: '/',
       pageTitle: { 'en-GB': 'Postcode lookup' },
       languages: expect.anything(),
-      metadata: { 'key1': 'val1' }
+      metadata: { key1: 'val1' }
     })
   })
 })
