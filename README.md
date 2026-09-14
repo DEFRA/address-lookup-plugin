@@ -32,6 +32,7 @@ This is a plugin (with integrated demo) rather than a standalone customer servic
 - Node.js
 - npm
 - an Ordnance Survey API key
+- GDS frontend 6.1.0 or above
 
 ## Setup
 
@@ -114,6 +115,36 @@ The postcode lookup plugin is registered when an Ordnance Survey API key is pres
 `metadata` is an optional pass-through property which can hold key/value pairs, and gets added to the model in the callback.
 
 The plugin stores journey state in `yar` and redirects back to the configured callback URL once an address is selected, defaulting to `/postcode-lookup/receiver` when no callback is provided.
+
+You start the postcode lookup journey by making a call to `dispatch`, and will need to implement a `receiver`, for example:
+
+```
+import { dispatch } from '@defra/address-lookup-plugin/routes'
+
+/** @satisfies {ServerRoute[]} */
+export const postcodeRoutes = [
+  {
+    method: 'POST',
+    path: '/my-postcode-demo',
+    handler: (request, h) =>
+      dispatch(request, h, {
+        pageTitle: { 'en-GB': 'Postcode lookup' }, // optional param
+        metadata: { 'key1': 'val1' }, // optional pass-through param
+      })
+  },
+  {
+    method: 'GET',
+    path: '/postcode-lookup/receiver',
+    handler: (request, h) {
+      // Process the returned parameters here
+      // received in `request.query`
+
+      // Continue with the rest of your application journey
+      return h.view('my-next-page')
+    }
+  }
+]
+```
 
 ## Routes
 

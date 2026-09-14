@@ -1,10 +1,18 @@
 {% extends "layout.html" %}
 
-{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
 {% block content %}
     <h1 class="govuk-heading-xl">{{ pageHeading }}</h1>
     <p class="govuk-body">{{ pageText }}</p>
 
-    <p class="govuk-body">Params: {{ params | dump }}</p>
+    <p class="govuk-body">
+      {{ govukTable({
+          rows: paramRows
+      }) }}
+    </p>
+
+    <p class="govuk-body">
+      <a href="/" class="govuk-link govuk-link--no-visited-state">Start the journey again</a>
+    </p>
 {% endblock %}

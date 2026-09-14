@@ -22,6 +22,12 @@
  *   logger?: Logger,
  *   translator?: Translator,
  *   callbackUrl?: string
+ *   titles?: {
+ *     pageTitle?: {
+ *      'en-GB': string,
+ *      'cy'?: string
+ *     }
+ *   }
  * }} PostcodeLookupConfiguration
  */
 
@@ -36,8 +42,7 @@
  * @typedef {{
  *   sourceUrl: string,
  *   metadata?: Record<string, string>
- *   title: string
- *   hint?: string
+ *   pageTitle?: Record<string, string>
  *   step?: string
  *   language?: string
  *   languages?: { name: string, code: string}[]
