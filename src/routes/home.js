@@ -9,7 +9,7 @@ export const home = [
     path: '/',
     handler: (request, h) =>
       h.view('home', {
-        pageHeading: 'Postcode lookup plugin PoC',
+        pageHeading: 'Postcode lookup plugin demo',
         pageText: 'Click the button to start the journey'
       })
   },
@@ -20,7 +20,15 @@ export const home = [
       dispatch(
         /** @type {PostcodeLookupRequest} */ (/** @type {unknown} */ (request)),
         h,
-        { sourceUrl: '/', title: 'Postcode lookup', metadata: { key1: 'val1' } }
+        {
+          sourceUrl: '/',
+          pageTitle: { 'en-GB': 'Postcode lookup' },
+          languages: [
+            { code: 'en-GB', name: 'English' },
+            { code: 'cy', name: 'Cymraeg' }
+          ],
+          metadata: { key1: 'val1' }
+        }
       )
   }
 ]

@@ -21,6 +21,8 @@ const viewName = 'postcode-lookup/views/postcode-lookup-details'
 
 const defaultReceiverPath = '/postcode-lookup/receiver'
 
+const excludedKeys = new Set(['sourceUrl', 'pageTitle', 'languages'])
+
 /**
  * Get the session state associated with this journey
  * @param {PostcodeLookupRequest} request
@@ -115,7 +117,10 @@ function getRoute(options) {
           ? manualViewModel(session, translator)
           : detailsViewModel(session, translator)
 
-      return h.view(viewName, model)
+      return h.view(viewName, {
+        ...model,
+        currentPath: `${request.path}${request.url.search}`
+      })
     },
     options: {
       validate: {
@@ -251,11 +256,7 @@ async function selectPostHandler(request, h, options) {
 
   // Redirect back to the receiver page, with appropriate params
   const receiverPath = options.callbackUrl ?? defaultReceiverPath
-  const returnUrl = new URL(receiverPath, 'https://local')
-  for (const [key, val] of Object.entries(combinedModel)) {
-    const value = typeof val === 'string' ? val : JSON.stringify(val)
-    returnUrl.searchParams.append(key, value)
-  }
+  const returnUrl = buildReturnUrlWithParams(receiverPath, combinedModel)
   return h
     .redirect(`${receiverPath}${returnUrl.search}`)
     .code(StatusCodes.SEE_OTHER)
@@ -293,17 +294,31 @@ function manualPostHandler(request, h, options) {
 
   // Redirect back to the receiver page, with appropriate params
   const receiverPath = options.callbackUrl ?? defaultReceiverPath
-  const returnUrl = new URL(receiverPath, 'https://local')
-  for (const [key, val] of Object.entries(combinedModel)) {
-    const value = typeof val === 'string' ? val : JSON.stringify(val)
-    returnUrl.searchParams.append(key, value)
-  }
+  const returnUrl = buildReturnUrlWithParams(receiverPath, combinedModel)
   return h
     .redirect(`${receiverPath}${returnUrl.search}`)
     .code(StatusCodes.SEE_OTHER)
 }
 
 /**
+ * Appends resulting parameters to return URL
+ * @param {string} receiverPath
+ * @param {object} combinedModel
+ * @returns {URL}
+ */
+function buildReturnUrlWithParams(receiverPath, combinedModel) {
+  const returnUrl = new URL(receiverPath, 'https://local')
+  for (const [key, val] of Object.entries(combinedModel)) {
+    if (excludedKeys.has(key)) {
+      continue
+    }
+    const value = typeof val === 'string' ? val : JSON.stringify(val)
+    returnUrl.searchParams.append(key, value)
+  }
+  return returnUrl
+}
+
+/**
  * @import { ResponseObject, ResponseToolkit, ServerRoute } from '@hapi/hapi'
- * @import { GenericRequest, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupConfiguration, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/plugins/postcode-lookup/types.js'
+ * @import { GenericRequest, PostcodeLookupConfiguration, PostcodeLookupGetRequestRefs, PostcodeLookupPostRequestRefs, PostcodeLookupRequest, PostcodeLookupPostRequest, PostcodeLookupDispatchData, PostcodeLookupSessionData } from '~/src/plugins/postcode-lookup/types.js'
  */
